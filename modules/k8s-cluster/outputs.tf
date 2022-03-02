@@ -3,3 +3,7 @@ output "kube_config" {
 
   sensitive = true
 }
+
+output "kubelet_id" {
+  value = azurerm_kubernetes_cluster.k8s-cluster.kubelet_identity[0].object_id
+}
