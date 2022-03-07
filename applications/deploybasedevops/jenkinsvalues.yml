@@ -1,0 +1,16 @@
+controller:
+  ingress:
+    enabled: true
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+    hostName: jenkins.cindrak.com
+    paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: jenkins
+                    port:
+                      number: 8080

@@ -3,3 +3,5 @@
 **/*.tfstate*
 
 /applications/kubeconfig
+/jenkins-creds
+/kubeconfig

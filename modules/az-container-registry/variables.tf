@@ -1,12 +1,15 @@
 variable "rg-location" {
-default = "West Europe"
+ type = string
+ default = "West Europe"
 }
 
 variable "rg-name" {
+ type = string
  default = "test2"
 }
 
 variable "acr-name" {
+ type = string
  default = "test"
 }
 
