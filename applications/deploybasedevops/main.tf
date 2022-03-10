@@ -69,9 +69,9 @@ resource "kubernetes_cluster_role" "deployment" {
     name = "deployment"
   }
   rule {
-    api_groups = [""]
-    resources = ["ResourceAll"]
-    verbs = ["get","list","create", "delete", "patch"]
+    api_groups = ["*"]
+    resources = ["*"]
+    verbs = ["get","list","create", "patch"]
   }
   depends_on = [kubernetes_service_account.deployment]
 }
