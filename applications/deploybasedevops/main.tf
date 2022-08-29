@@ -2,11 +2,11 @@ terraform {
   required_providers {
     helm = {
       source = "hashicorp/helm"
-      version = "2.4.1"
+      version = "2.6.0"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
-      version = "2.8.0"
+      version = "2.13.0"
     }
 
   }
@@ -33,16 +33,16 @@ resource "helm_release" "nginx_ingress" {
 }
 
 ## Uncomment to install monitoring stack
-//resource "helm_release" "monitoring-stack" {
-//  name       = "prometheus-community"
-//
-//  repository = "https://prometheus-community.github.io/helm-charts"
-//  chart      = "kube-prometheus-stack"
-//  namespace = "monitoring"
-//  values = [file("grafanavalues.yml")]
-//  create_namespace = true
-//
-//}
+resource "helm_release" "monitoring-stack" {
+  name       = "prometheus-community"
+
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  namespace = "monitoring"
+  values = [file("grafanavalues.yml")]
+  create_namespace = true
+
+}
 
 
 resource "helm_release" "jenkins" {

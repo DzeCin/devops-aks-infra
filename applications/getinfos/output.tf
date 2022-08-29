@@ -1,11 +1,11 @@
-output "jenkins-secret" {
-  value = data.kubernetes_secret.jenkins-secrets.binary_data
+output "jenkins_secret" {
+  value = data.kubernetes_secret.jenkins_secrets.binary_data
   sensitive = true
-  depends_on = [data.kubernetes_secret.jenkins-secrets]
+  depends_on = [data.kubernetes_secret.jenkins_secrets]
 }
 
-output "grafana-secret" {
-  value = data.kubernetes_secret.grafana-secrets.binary_data
+output "grafana_secret" {
+  value = data.kubernetes_secret.grafana_secrets.binary_data
   sensitive = true
-  depends_on = [data.kubernetes_secret.grafana-secrets]
+  depends_on = [data.kubernetes_secret.grafana_secrets]
 }

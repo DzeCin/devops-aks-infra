@@ -24,10 +24,10 @@ terraform -chdir=getinfos init
 terraform -chdir=getinfos refresh
 terraform -chdir=getinfos apply -auto-approve
 
-terraform -chdir=getinfos output -json jenkins-secret | jq -r '.["jenkins-admin-password"]' | base64 -d >> ../jenkins-creds
+terraform -chdir=getinfos output -json jenkins_secret | jq -r '.["jenkins-admin-password"]' | base64 -d > ../jenkins-creds
 printf "\n" >> ../jenkins-creds
-terraform -chdir=getinfos output -json jenkins-secret | jq -r '.["jenkins-admin-user"]' | base64 -d >> ../jenkins-creds
+terraform -chdir=getinfos output -json jenkins_secret | jq -r '.["jenkins-admin-user"]' | base64 -d >> ../jenkins-creds
 
-#terraform -chdir=getinfos output -json grafana-secret | jq -r '.["admin-password"]' | base64 -d >> ../grafana-creds
-#printf "\n" >> ../grafana-creds
-#terraform -chdir=getinfos output -json grafana-secret | jq -r '.["admin-user"]' | base64 -d >> ../grafana-creds
+terraform -chdir=getinfos output -json grafana_secret | jq -r '.["admin-password"]' | base64 -d > ../grafana-creds
+printf "\n" >> ../grafana-creds
+terraform -chdir=getinfos output -json grafana_secret | jq -r '.["admin-user"]' | base64 -d >> ../grafana-creds

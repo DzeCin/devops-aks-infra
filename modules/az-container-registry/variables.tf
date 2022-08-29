@@ -1,18 +1,18 @@
-variable "rg-location" {
+variable "rg_location" {
  type = string
  default = "West Europe"
 }
 
-variable "rg-name" {
+variable "rg_name" {
  type = string
  default = "test2"
 }
 
-variable "acr-name" {
+variable "acr_name" {
  type = string
  default = "test"
 }
 
 
-variable "k8s-cluster" {
+variable "k8s_cluster" {
 }

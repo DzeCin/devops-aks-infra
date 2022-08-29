@@ -1,32 +1,32 @@
-variable "rg-location" {
+variable "rg_location" {
   type = string
   default = "West Europe"
 }
 
-variable "rg-name" {
+variable "rg_name" {
   type = string
   default = "test"
 }
 
-variable "k8s-cluster-name" {
+variable "k8s_cluster_name" {
   type = string
   default = "test"
 }
 
 
-variable "k8s-cluster-default-vm-size" {
+variable "k8s_cluster_default_vm_size" {
   type = string
   default = "Standard_D2_v2"
 }
 
-variable "k8s-cluster-tags" {
+variable "k8s_cluster_tags" {
   type = map(string)
   default = {
     Environment = "Dev"
   }
 }
 
-variable "node-pools" {
+variable "node_pools" {
   type = list( object({
     name = string
     vm_size = string
@@ -34,12 +34,12 @@ variable "node-pools" {
   }))
 }
 
-variable "k8s-version" {
+variable "k8s_version" {
   type = string
   default = "1.22.6"
 }
 
-variable "default-node-pool-number" {
+variable "default_node_pool_number" {
   type = number
   default = 1
 }

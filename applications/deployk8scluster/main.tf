@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
-      version = "2.98.0"
+      version = "3.20.0"
     }
   }
 }
@@ -15,25 +15,21 @@ provider "azurerm" {
 }
 
 
-module "k8s-cluster" {
+module "k8s_cluster" {
   source = "../../modules/k8s-cluster"
-  rg-location = "West Europe"
-  rg-name = "K8S"
-  k8s-cluster-name = "aksdzenan"
+  rg_location = var.rg_location
+  rg_name = var.rg_name
+  k8s_cluster_name = var.k8s_cluster_name
 
-  node-pools = [{
-    name = "workers"
-    vm_size = "Standard_D2_v2"
-    node_count = 1
-  }]
+  node_pools = var.node_pools
 }
 
 module "acr" {
-  rg-location = "West Europe"
-  rg-name = "ACR"
-  acr-name = "azureacr1dzenancin"
   source = "../../modules/az-container-registry"
-  k8s-cluster = module.k8s-cluster.kubelet_id
-  depends_on = [module.k8s-cluster]
+  rg_location = var.rg_location
+  rg_name = "ACR"
+  acr_name = var.acr_name
+  k8s_cluster = module.k8s_cluster.kubelet_id
+  depends_on = [module.k8s_cluster]
 }
 

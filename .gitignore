@@ -5,3 +5,4 @@
 /applications/kubeconfig
 /jenkins-creds
 /kubeconfig
+/grafana-creds
