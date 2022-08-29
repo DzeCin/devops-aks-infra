@@ -3,12 +3,28 @@ resource "azurerm_resource_group" "rg" {
   location = var.rg_location
 }
 
+
+resource "azurerm_log_analytics_workspace" "k8s_logs" {
+  name                = "k8s-logs"
+  location            = var.rg_location
+  resource_group_name = var.rg_name
+  retention_in_days   = 30
+  depends_on = [azurerm_resource_group.rg]
+}
+
+
+
 resource "azurerm_kubernetes_cluster" "k8s_cluster" {
   name                = var.k8s_cluster_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = var.k8s_cluster_name
   kubernetes_version = var.k8s_version
+  oms_agent {
+
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.k8s_logs.id
+
+  }
 
   default_node_pool {
     name       = "default"
@@ -21,6 +37,8 @@ resource "azurerm_kubernetes_cluster" "k8s_cluster" {
   }
 
   tags = var.k8s_cluster_tags
+
+  depends_on=[azurerm_log_analytics_workspace.k8s_logs]
 }
 
 
