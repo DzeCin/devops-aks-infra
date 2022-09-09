@@ -43,3 +43,19 @@ variable "default_node_pool_number" {
   type = number
   default = 1
 }
+
+variable "log_analytics_workspace_id" {
+  type = string
+}
+
+variable "event_hub_name" {
+  type = string
+}
+
+variable "event_hub_namespace_rg_name" {
+  type = string
+}
+
+variable "event_hub_namespace_name" {
+  type = string
+}
