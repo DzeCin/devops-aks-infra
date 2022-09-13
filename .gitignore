@@ -1,6 +1,6 @@
 **/.idea
-**/*.tfstate*
-/applications/kubeconfig
-/jenkins-creds
-/kubeconfig
-/grafana-creds
+/**/*.tfstate*
+/**/.terraform*
+**/jenkins-creds
+**/kubeconfig
+**/grafana-creds

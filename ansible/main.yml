@@ -1,0 +1,10 @@
+
+- hosts: all
+  become: true
+  vars: 
+    - password: ""
+    - topic_id: ""
+    - bootstrap_servers: ""
+  roles:
+   # - docker
+    - logstash

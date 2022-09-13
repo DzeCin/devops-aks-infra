@@ -1,0 +1,45 @@
+---
+# tasks file for docker
+- name: Ensure old versions of Docker are not installed.
+  package:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Downloading install script
+  get_url:
+    url: https://get.docker.com
+    dest: /tmp/docker.sh
+    mode: 'u+x,g+x'
+    timeout: 10
+
+- name: Executing docker install script
+  command: bash /tmp/docker.sh
+
+- name: Ensure /etc/docker/ directory exists.
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+  when: docker_daemon_options.keys() | length > 0
+
+- name: Configure Docker daemon options.
+  copy:
+    content: "{{ docker_daemon_options | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  when: docker_daemon_options.keys() | length > 0
+  notify: restart docker
+
+- name: Testing docker installation
+  command: docker run --rm hello-world
+
+- include_tasks: docker-users.yml
+  when: docker_users | length > 0
+
+- name: Install docker-compose from the official github repo
+  get_url:
+    url : https://github.com/docker/compose/releases/download/v2.10.2/docker-compose-linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 'u+x,g+x'

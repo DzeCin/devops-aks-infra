@@ -48,7 +48,7 @@ terraform -chdir=deployK8sCluster output -raw kube_config  > ../kubeconfig
 
 # login to acr
 
-docker login -p "$(terraform -chdir=deployK8sCluster output -raw acr_admin_password)" -u "$(terraform -chdir=deployk8scluster output -raw acr_admin_username)" "$(terraform -chdir=deployk8scluster output -raw acr_url)"
+docker login -p "$(terraform -chdir=deployK8sCluster output -raw acr_admin_password)" -u "$(terraform -chdir=deployK8sCluster output -raw acr_admin_username)" "$(terraform -chdir=deployK8sCluster output -raw acr_url)"
 
 # deploy ingress and jenkins
 

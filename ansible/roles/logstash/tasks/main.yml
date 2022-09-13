@@ -1,0 +1,38 @@
+---
+# tasks file for logstash
+- name: Copying docker-compose directory
+  become: true 
+  copy:
+      src: docker-compose.yml
+      dest: /var/docker-compose-files
+
+- name: Creating config dirs
+  file:
+    path: "/etc/{{ item }}"
+    state: directory
+  loop: ["loki", "logstash", "logstash/conf.d" ,"minio"]
+
+- name: Setting up logstash config
+  template:
+    src: logstash-conf.j2
+    dest: /etc/logstash/conf.d/kafka.conf
+
+- name: Setting up jaas for logstash config
+  template:
+    src: jaas.j2
+    dest: /etc/logstash/conf.d/jaas
+
+- name: Copying config file for Loki
+  copy:
+    src: loki-config.yaml
+    dest: /etc/loki/config.yaml
+
+- name: Making sure containers are down
+  command: 
+    chdir: "/var/docker-compose-files"
+    cmd: docker-compose down
+
+- name: Running docker-compose on services to start
+  command: 
+    chdir: "/var/docker-compose-files"
+    cmd: docker-compose up -d
