@@ -1,20 +1,29 @@
 version: "3.19"
 services:
-  logstash:
-    image: grafana/logstash-output-loki:main
-      
-    ports:
-      - "9200:9200"
-    command: logstash -f /etc/logstash/conf.d/kafka.conf
-    volumes:
-      - /etc/logstash/conf.d:/etc/logstash/conf.d
+
+  fluentd:
+    image: fluentd:v1
+    command:
+      - "fluentd"
+      - "-v"
+      - "-p"
+      - "/fluentd/plugins"
     environment:
-      - MONITORING_ENABLED=false
-      - XPACK_MONITORING_ENABLED=false
+      LOKI_URL: "http://gateway:3100"
+#      LOKI_USERNAME: sa-fluentd
+#      LOKI_PASSWORD: glsa_sXEdFHwxu8rKDvNyJYfONje7c5tKMMFf_2054a7ef
+      FLUENTD_CONF: fluentd.conf
+    volumes:
+      - /var/log:/var/log
+      - /etc/fluentd:/fluentd/etc
+      # Needed for journald log ingestion:
+      - /etc/machine-id:/etc/machine-id
+      - /dev/log:/dev/log
+      - /var/run/systemd/journal/:/var/run/systemd/journal/
     networks:
       - logstash-network
 
-  gafana:
+  grafana:
     image: grafana/grafana:latest
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
@@ -33,11 +42,7 @@ services:
           - name: Loki
             type: loki
             access: proxy
-            url: http://loki:3100
-            jsonData:
-              httpHeaderName1: "X-Scope-OrgID"
-            secureJsonData:
-              httpHeaderValue1: "tenant1"
+            url: http://gateway:3100
         EOF
         /run.sh
     ports:
@@ -48,7 +53,7 @@ services:
   loki:
     image: grafana/loki:main
     ports:
-        - "3100:3100"
+        - "3100"
         - "7946"
         - "9095"
     volumes:
@@ -56,30 +61,71 @@ services:
     command: -config.file=/etc/loki/config.yaml
     networks:
       - logstash-network
-    depends_on:
-      - minio
 
-  minio:
-    image: minio/minio
+
+  gateway:
+    image: nginx:latest
+    depends_on:
+      - loki
     entrypoint:
       - sh
       - -euc
       - |
-        mkdir -p /data/loki-data && \
-        mkdir -p /data/loki-ruler && \
-        minio server /data
-    environment:
-      - MINIO_ACCESS_KEY=loki
-      - MINIO_SECRET_KEY=supersecret
-      - MINIO_PROMETHEUS_AUTH_TYPE=public
-      - MINIO_UPDATE=off
+        cat <<EOF > /etc/nginx/nginx.conf
+        user  nginx;
+        worker_processes  5;  ## Default: 1
+
+        events {
+          worker_connections   1000;
+        }
+
+        http {
+          resolver 127.0.0.11;
+
+          server {
+            listen             3100;
+
+            location = / {
+              return 200 'OK';
+              auth_basic off;
+            }
+
+            location = /api/prom/push {
+              proxy_pass       http://loki:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+            }
+
+            location = /api/prom/tail {
+              proxy_pass       http://loki:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
+
+            location ~ /api/prom/.* {
+              proxy_pass       http://loki:3100\$$request_uri;
+            }
+
+            location = /loki/api/v1/push {
+              proxy_pass       http://loki:3100\$$request_uri;
+            }
+
+            location = /loki/api/v1/tail {
+              proxy_pass       http://loki:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
+
+            location ~ /loki/api/.* {
+              proxy_pass       http://loki:3100\$$request_uri;
+            }
+          }
+        }
+        EOF
+        /docker-entrypoint.sh nginx -g "daemon off;"
     ports:
-      - 9000
-    volumes:
-      - /etc/minio/data:/data
+      - "3100:3100"
     networks:
       - logstash-network
-
 
 networks:
   logstash-network:

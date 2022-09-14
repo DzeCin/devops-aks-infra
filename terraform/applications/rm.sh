@@ -9,9 +9,9 @@ EVENT_HUB_NAMESPACE_RG_NAME=$(terraform -chdir=deployMonitoring output -raw even
 
 
 # rm ingress and jenkins
-# terraform -chdir=deployBaseDevops destroy -auto-approve
+terraform -chdir=deployBaseDevops destroy -auto-approve
 
-# rm ./path/file
+# rm k8sCluster
 terraform -chdir=deployK8sCluster destroy -auto-approve \
   -var="log_analytics_workspace_id=$LOG_ANALYTICS_WORKSPACE_ID" \
   -var="event_hub_name=$EVENT_HUB_NAME" \

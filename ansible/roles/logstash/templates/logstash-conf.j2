@@ -8,22 +8,24 @@ input {
     jaas_path => "/etc/logstash/conf.d/jaas"
 }
     }
- 
- 
+
+
 filter {
+
     json { source => "message" }
     split { field => "records" }
+
     }
- 
- 
- 
+
+
+
 output {
 
   loki {
 
-        url => "http://loki:3100/loki/api/v1/push"
+        url => "http://gateway:3100/loki/api/v1/push"
         insecure_skip_verify => true
-        
+
     }
-  
+
   }

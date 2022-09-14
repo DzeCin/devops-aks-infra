@@ -1,7 +1,35 @@
 ---
 # tasks file for logstash
+- name: Creating docker compose dir
+  file:
+    path: "/var/docker-compose-files"
+    state: directory
+
+- name: Check that the docker-compose.yml exists
+  stat:
+    path: /var/docker-compose-files/docker-compose.yml
+  register: stat_result
+
+- name: Making sure containers are down
+  command:
+    chdir: "/var/docker-compose-files"
+    cmd: docker-compose down
+  when: stat_result.stat.exists
+
+- name: Copying custom dockerfile to build fluentd
+  become: true
+  copy:
+      src: dockerfile
+      dest: /var/docker-compose-files
+
+- name: Building custom fluentd image
+  command:
+    chdir: "/var/docker-compose-files"
+    cmd: docker build -t fluentd:v1 .
+
+
 - name: Copying docker-compose directory
-  become: true 
+  become: true
   copy:
       src: docker-compose.yml
       dest: /var/docker-compose-files
@@ -10,29 +38,20 @@
   file:
     path: "/etc/{{ item }}"
     state: directory
-  loop: ["loki", "logstash", "logstash/conf.d" ,"minio"]
+  loop: ["loki", "fluentd" , "fluentd" ,"minio"]
 
-- name: Setting up logstash config
+- name: Setting up fluentd config
   template:
-    src: logstash-conf.j2
-    dest: /etc/logstash/conf.d/kafka.conf
-
-- name: Setting up jaas for logstash config
-  template:
-    src: jaas.j2
-    dest: /etc/logstash/conf.d/jaas
+    src: fluentd-conf.j2
+    dest: /etc/fluentd/fluentd.conf
 
 - name: Copying config file for Loki
   copy:
     src: loki-config.yaml
     dest: /etc/loki/config.yaml
 
-- name: Making sure containers are down
-  command: 
-    chdir: "/var/docker-compose-files"
-    cmd: docker-compose down
 
 - name: Running docker-compose on services to start
-  command: 
+  command:
     chdir: "/var/docker-compose-files"
     cmd: docker-compose up -d
